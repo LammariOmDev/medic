@@ -251,6 +251,10 @@
                 // 5. Affichage final
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('monTableau').style.display = 'table';
+
+                // --- C'EST ICI QUE LA MAGIE OPÈRE ---
+                // On met le focus automatiquement sur le champ de recherche
+                $('.dataTables_filter input').focus();
             }
 
         } catch (error) {
@@ -264,3 +268,4 @@
 </body>
 
 </html>
+
