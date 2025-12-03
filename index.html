@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Médicaments Remboursables par catégorie</title>
+    <title>Médicaments Remboursables</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -19,10 +19,9 @@
             padding: 30px; 
             border-radius: 8px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.1); 
-            min-height: 80vh; /* Assure une bonne hauteur */
+            min-height: 80vh; 
         }
 
-        /* Titre dynamique */
         h1 { 
             margin-bottom: 10px; 
             color: #2c3e50; 
@@ -30,10 +29,9 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            text-align: center; 
+            text-align: right; 
         }
 
-        /* Ligne grise */
         hr.custom-line {
             border: 0; 
             height: 2px; 
@@ -45,13 +43,12 @@
             box-shadow: 0 3px 5px rgba(0,0,0,0.2); 
         }
 
-        /* Signature */
         .signature {
             font-size: 11px; 
             color: #7f8c8d; 
             margin-bottom: 25px; 
             font-style: italic;
-            /* border-bottom: 2px solid #3498db; */
+            border-bottom: 2px solid #3498db; 
             padding-bottom: 10px;
             display: block; 
             text-align: right; 
@@ -59,43 +56,26 @@
         .signature a { color: inherit; text-decoration: none; font-weight: bold; transition: color 0.3s; }
         .signature a:hover { color: #3498db; }
 
-        /* --- NOUVEAU : STYLE DES ONGLETS (BOUTONS) --- */
-        .nav-pills {
-            justify-content: center; /* Centre les boutons */
-            margin-bottom: 20px;
-            gap: 15px; /* Espace entre les boutons */
-        }
+        /* Onglets */
+        .nav-pills { justify-content: center; margin-bottom: 20px; gap: 15px; }
         .nav-pills .nav-link {
-            color: #3498db;
-            border: 2px solid #3498db;
-            font-weight: bold;
-            border-radius: 30px; /* Boutons bien ronds */
-            padding: 10px 25px;
-            transition: 0.3s;
+            color: #3498db; border: 2px solid #3498db; font-weight: bold;
+            border-radius: 30px; padding: 10px 25px; transition: 0.3s;
         }
-        .nav-pills .nav-link:hover {
-            background-color: #eaf6ff;
-        }
-        /* Style du bouton actif */
+        .nav-pills .nav-link:hover { background-color: #eaf6ff; }
         .nav-pills .nav-link.active {
-            background-color: #3498db;
-            color: white;
+            background-color: #3498db; color: white;
             box-shadow: 0 4px 6px rgba(52, 152, 219, 0.4);
         }
-        /* --------------------------------------------- */
 
-        /* Design Table & Recherche */
+        /* Champ de recherche */
         .dataTables_filter input {
             border: 2px solid #3498db !important; 
-            border-radius: 5px; 
-            padding: 5px 10px;
-            background-color: #fcfcfc;
+            border-radius: 5px; padding: 5px 10px; background-color: #fcfcfc;
         }
-        .dataTables_filter input:focus {
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.4); 
-            outline: none;
-        }
+        .dataTables_filter input:focus { box-shadow: 0 0 8px rgba(52, 152, 219, 0.4); outline: none; }
 
+        /* Alignements */
         .dataTables_wrapper .row:first-child { flex-direction: row-reverse; }
         .dataTables_filter { text-align: left !important; }
         .dataTables_length { text-align: right !important; }
@@ -104,6 +84,22 @@
         .dataTables_wrapper { font-size: 14px; margin-top: 10px; }
         
         #loading { font-size: 18px; color: #666; text-align: center; padding: 20px; }
+
+        /* --- STYLE DE LA MODALE (POP-UP) --- */
+        /* Permet de garder les retours à la ligne du fichier Excel */
+        .modal-body {
+            white-space: pre-wrap; 
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        .modal-header {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%); /* Croix blanche */
+        }
     </style>
 </head>
 <body>
@@ -118,16 +114,14 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="btn-cancer" onclick="switchCategory('cancer')">
-                Catégorie Cancer
+                Maladies Cancer
             </button>
         </li>
     </ul>
 
     <h1 id="main-title">Médicaments Remboursables (Démunis)</h1>
-    
     <hr class="custom-line">
-    
-    <div class="signature">By <a href="https://facebook.com/LammariOmDev" target="_blank">LammariOmDev ©2025</a></div>
+    <div class="signature">By <a href="https://facebook.com/LammariOmDev" target="_blank">LammariOmDev</a></div>
 
     <div id="loading">
         <div class="spinner-border text-primary" role="status"></div>
@@ -144,26 +138,40 @@
     </div>
 </div>
 
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Détails</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modal-content-body">
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
 <script>
-    // Variable globale pour stocker l'instance du tableau
     let tableInstance = null;
+    // On prépare la modale Bootstrap
+    let myModal = null; 
 
-    // Au chargement de la page, on lance la catégorie "Démunis"
     window.onload = function() {
+        // Initialisation de l'objet modal
+        myModal = new bootstrap.Modal(document.getElementById('detailModal'));
         switchCategory('demunis');
     };
 
-    // Fonction qui gère le changement d'onglet
     function switchCategory(category) {
         let fileName = '';
         let title = '';
         
-        // Gestion des boutons (Activer/Désactiver le style bleu)
         document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
         
         if (category === 'demunis') {
@@ -172,34 +180,26 @@
             document.getElementById('btn-demunis').classList.add('active');
         } else if (category === 'cancer') {
             fileName = 'cancer.xlsx';
-            title = "Médicaments Remboursables pour Carte CHIFA Cancéreux";
+            title = "Liste des Médicaments Anti-Cancéreux";
             document.getElementById('btn-cancer').classList.add('active');
         }
 
-        // Mise à jour du titre
         document.getElementById('main-title').innerText = title;
-
-        // Lancement du chargement
         loadExcel(fileName);
     }
 
     async function loadExcel(file) {
-        // 1. Reset de l'interface
         document.getElementById('loading').style.display = 'block';
         document.getElementById('monTableau').style.display = 'none';
         
-        // Si un tableau existe déjà, on le détruit proprement pour en recréer un
         if ($.fn.DataTable.isDataTable('#monTableau')) {
             $('#monTableau').DataTable().destroy();
-            $('#table-headers').empty(); // Vide les titres
-            $('#table-body').empty();    // Vide le contenu
+            $('#table-headers').empty(); 
+            $('#table-body').empty();    
         }
 
         try {
-            // 2. Récupération du fichier
-            // Ajout d'un timestamp (?t=...) pour éviter que le navigateur garde le vieux fichier en mémoire
             const response = await fetch(file + '?t=' + new Date().getTime());
-            
             if (!response.ok) throw new Error("Fichier introuvable");
 
             const arrayBuffer = await response.arrayBuffer();
@@ -211,11 +211,9 @@
             const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
 
             if (jsonData.length > 0) {
-                // 3. Construction du HTML
                 const headers = jsonData[0];
                 const headerRow = document.getElementById('table-headers');
                 
-                // Création des en-têtes
                 headers.forEach(header => {
                     const th = document.createElement('th');
                     th.textContent = header || "-"; 
@@ -224,61 +222,73 @@
 
                 const body = document.getElementById('table-body');
                 
-                // Création des lignes
+                // Boucle sur les données
                 for (let i = 1; i < jsonData.length; i++) {
                     const rowData = jsonData[i];
                     if (rowData.length > 0) {
                         const tr = document.createElement('tr');
+                        
                         headers.forEach((_, index) => { 
                             const td = document.createElement('td');
-                            td.textContent = (rowData[index] !== undefined) ? rowData[index] : ""; 
+                            let cellContent = (rowData[index] !== undefined) ? String(rowData[index]) : "";
+                            
+                            // --- LOGIQUE POUR LA DERNIÈRE COLONNE (POP-UP) ---
+                            // Si c'est la dernière colonne ET qu'elle n'est pas vide
+                            if (index === headers.length - 1 && cellContent.trim() !== "") {
+                                
+                                // On crée un bouton bleu
+                                const btn = document.createElement('button');
+                                btn.className = 'btn btn-sm btn-info text-white'; // Style bleu
+                                btn.textContent = 'Voir Détails';
+                                btn.style.borderRadius = '20px';
+                                btn.style.fontSize = '12px';
+                                
+                                // Quand on clique dessus
+                                btn.onclick = function() {
+                                    // 1. On met le texte dans la modale
+                                    document.getElementById('modal-content-body').innerText = cellContent;
+                                    // 2. On affiche la modale
+                                    myModal.show();
+                                };
+                                
+                                td.appendChild(btn); // On met le bouton dans la case
+
+                            } else {
+                                // Sinon (c'est une colonne normale), on affiche le texte
+                                td.textContent = cellContent; 
+                            }
+                            // -------------------------------------------------
+
                             tr.appendChild(td);
                         });
                         body.appendChild(tr);
                     }
                 }
 
-                // 4. Initialisation de DataTables
                 tableInstance = $('#monTableau').DataTable({
-                    language: {
-                        url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' 
-                    },
+                    language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },
                     pageLength: 20, 
                     lengthMenu: [10, 20, 50, 100], 
-                    order: [] // Pas de tri initial
+                    order: [] 
                 });
 
-                // 5. Affichage final
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('monTableau').style.display = 'table';
                 
-                // Petit ajustement technique pour s'assurer que les colonnes sont bien alignées
                 tableInstance.columns.adjust().draw();
 
-                // --- CORRECTION DU CURSEUR ---
-                // On utilise setTimeout pour attendre un tout petit peu (100ms) 
-                // que le tableau soit visible avant de mettre le curseur.
                 setTimeout(function() {
                     $('.dataTables_filter input').focus();
                 }, 100);
-
-                // --- C'EST ICI QUE LA MAGIE OPÈRE ---
-                // On met le focus automatiquement sur le champ de recherche
-                // $('.dataTables_filter input').focus();
             }
 
         } catch (error) {
             console.error("Erreur:", error);
             document.getElementById('loading').innerHTML = 
-                "<span style='color:red; font-weight:bold'>Erreur : Impossible de charger le fichier " + file + ".<br>Vérifiez qu'il est bien uploadé sur GitHub.</span>";
+                "<span style='color:red; font-weight:bold'>Erreur : Impossible de charger le fichier " + file + ".</span>";
         }
     }
 </script>
 
 </body>
-
 </html>
-
-
-
-
