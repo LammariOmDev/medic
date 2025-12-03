@@ -251,10 +251,20 @@
                 // 5. Affichage final
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('monTableau').style.display = 'table';
+                
+                // Petit ajustement technique pour s'assurer que les colonnes sont bien alignées
+                tableInstance.columns.adjust().draw();
+
+                // --- CORRECTION DU CURSEUR ---
+                // On utilise setTimeout pour attendre un tout petit peu (100ms) 
+                // que le tableau soit visible avant de mettre le curseur.
+                setTimeout(function() {
+                    $('.dataTables_filter input').focus();
+                }, 100);
 
                 // --- C'EST ICI QUE LA MAGIE OPÈRE ---
                 // On met le focus automatiquement sur le champ de recherche
-                $('.dataTables_filter input').focus();
+                // $('.dataTables_filter input').focus();
             }
 
         } catch (error) {
@@ -268,6 +278,7 @@
 </body>
 
 </html>
+
 
 
 
