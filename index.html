@@ -86,7 +86,6 @@
         #loading { font-size: 18px; color: #666; text-align: center; padding: 20px; }
 
         /* --- STYLE DE LA MODALE (POP-UP) --- */
-        /* Permet de garder les retours à la ligne du fichier Excel */
         .modal-body {
             white-space: pre-wrap; 
             font-size: 15px;
@@ -98,7 +97,7 @@
             color: white;
         }
         .btn-close {
-            filter: invert(1) grayscale(100%) brightness(200%); /* Croix blanche */
+            filter: invert(1) grayscale(100%) brightness(200%); 
         }
     </style>
 </head>
@@ -139,13 +138,14 @@
 </div>
 
 <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg"> <div class="modal-content">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Détails</h5>
+        <h5 class="modal-title">Détails (CPR)</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="modal-content-body">
-        </div>
+      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
       </div>
@@ -153,17 +153,16 @@
   </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
 <script>
     let tableInstance = null;
-    // On prépare la modale Bootstrap
     let myModal = null; 
 
     window.onload = function() {
-        // Initialisation de l'objet modal
         myModal = new bootstrap.Modal(document.getElementById('detailModal'));
         switchCategory('demunis');
     };
@@ -222,7 +221,6 @@
 
                 const body = document.getElementById('table-body');
                 
-                // Boucle sur les données
                 for (let i = 1; i < jsonData.length; i++) {
                     const rowData = jsonData[i];
                     if (rowData.length > 0) {
@@ -232,32 +230,31 @@
                             const td = document.createElement('td');
                             let cellContent = (rowData[index] !== undefined) ? String(rowData[index]) : "";
                             
-                            // --- LOGIQUE POUR LA DERNIÈRE COLONNE (POP-UP) ---
-                            // Si c'est la dernière colonne ET qu'elle n'est pas vide
-                            if (index === headers.length - 1 && cellContent.trim() !== "") {
+                            // On récupère le nom de la colonne actuelle (en majuscules pour éviter les erreurs)
+                            let currentHeaderName = (headers[index] || "").toString().trim().toUpperCase();
+
+                            // --- MODIFICATION ICI : CIBLAGE PAR NOM "CPR" ---
+                            // Si le titre de la colonne est "CPR" ET que la case n'est pas vide
+                            if (currentHeaderName === "CPR" && cellContent.trim() !== "") {
                                 
-                                // On crée un bouton bleu
                                 const btn = document.createElement('button');
-                                btn.className = 'btn btn-sm btn-info text-white'; // Style bleu
+                                btn.className = 'btn btn-sm btn-info text-white'; 
                                 btn.textContent = 'Voir Détails';
                                 btn.style.borderRadius = '20px';
                                 btn.style.fontSize = '12px';
+                                btn.style.whiteSpace = 'nowrap'; // Empêche le bouton d'être écrasé
                                 
-                                // Quand on clique dessus
                                 btn.onclick = function() {
-                                    // 1. On met le texte dans la modale
                                     document.getElementById('modal-content-body').innerText = cellContent;
-                                    // 2. On affiche la modale
                                     myModal.show();
                                 };
                                 
-                                td.appendChild(btn); // On met le bouton dans la case
+                                td.appendChild(btn); 
 
                             } else {
-                                // Sinon (c'est une colonne normale), on affiche le texte
                                 td.textContent = cellContent; 
                             }
-                            // -------------------------------------------------
+                            // ------------------------------------------------
 
                             tr.appendChild(td);
                         });
