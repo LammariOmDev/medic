@@ -141,7 +141,7 @@
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Détails (CPR)</h5>
+        <h5 class="modal-title" id="modal-title">Détails</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="modal-content-body">
@@ -152,6 +152,7 @@
     </div>
   </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -226,14 +227,16 @@
                     if (rowData.length > 0) {
                         const tr = document.createElement('tr');
                         
+                        // --- NOUVEAU : On récupère le nom du médicament (Colonne 0) ---
+                        // On s'assure que c'est une chaîne de caractères
+                        let drugName = (rowData[0] !== undefined) ? String(rowData[0]) : "Médicament";
+                        
                         headers.forEach((_, index) => { 
                             const td = document.createElement('td');
                             let cellContent = (rowData[index] !== undefined) ? String(rowData[index]) : "";
                             
-                            // On récupère le nom de la colonne actuelle (en majuscules pour éviter les erreurs)
                             let currentHeaderName = (headers[index] || "").toString().trim().toUpperCase();
 
-                            // --- MODIFICATION ICI : CIBLAGE PAR NOM "CPR" ---
                             // Si le titre de la colonne est "CPR" ET que la case n'est pas vide
                             if (currentHeaderName === "CPR" && cellContent.trim() !== "") {
                                 
@@ -242,10 +245,14 @@
                                 btn.textContent = 'Voir Détails';
                                 btn.style.borderRadius = '20px';
                                 btn.style.fontSize = '12px';
-                                btn.style.whiteSpace = 'nowrap'; // Empêche le bouton d'être écrasé
+                                btn.style.whiteSpace = 'nowrap'; 
                                 
                                 btn.onclick = function() {
+                                    // 1. Mise à jour du contenu
                                     document.getElementById('modal-content-body').innerText = cellContent;
+                                    // 2. Mise à jour du titre avec le nom du médicament récupéré plus haut
+                                    document.getElementById('modal-title').innerText = "CPR - " + drugName;
+                                    // 3. Affichage
                                     myModal.show();
                                 };
                                 
@@ -254,7 +261,6 @@
                             } else {
                                 td.textContent = cellContent; 
                             }
-                            // ------------------------------------------------
 
                             tr.appendChild(td);
                         });
