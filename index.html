@@ -48,7 +48,6 @@
             color: #7f8c8d; 
             margin-bottom: 25px; 
             font-style: italic;
-            /* border-bottom: 2px solid #3498db; */
             padding-bottom: 10px;
             display: block; 
             text-align: right; 
@@ -80,12 +79,13 @@
         .dataTables_filter { text-align: left !important; }
         .dataTables_length { text-align: right !important; }
         
+        /* En-tête : Couleur bleue */
         table.dataTable thead { background-color: #3498db; color: white; }
         .dataTables_wrapper { font-size: 14px; margin-top: 10px; }
         
         #loading { font-size: 18px; color: #666; text-align: center; padding: 20px; }
 
-        /* --- STYLE DE LA MODALE (POP-UP) --- */
+        /* Pop-up */
         .modal-body {
             white-space: pre-wrap; 
             font-size: 15px;
@@ -99,6 +99,10 @@
         .btn-close {
             filter: invert(1) grayscale(100%) brightness(200%); 
         }
+
+        /* Petit ajustement pour l'alignement des colonnes avec le scroll */
+        .dataTables_scrollHeadInner { width: 100% !important; }
+        .dataTables_scrollHeadInner table { width: 100% !important; }
     </style>
 </head>
 <body>
@@ -127,15 +131,13 @@
         <br>Chargement des données...
     </div>
 
-    <div class="table-responsive">
-        <table id="monTableau" class="table table-striped" style="width:100%; display:none;">
-            <thead>
-                <tr id="table-headers"></tr>
-            </thead>
-            <tbody id="table-body"></tbody>
-        </table>
+    <table id="monTableau" class="table table-striped" style="width:100%; display:none;">
+        <thead>
+            <tr id="table-headers"></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+    </table>
     </div>
-</div>
 
 <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -227,53 +229,49 @@
                     if (rowData.length > 0) {
                         const tr = document.createElement('tr');
                         
-                        // --- NOUVEAU : On récupère le nom du médicament (Colonne 0) ---
-                        // On s'assure que c'est une chaîne de caractères
                         let drugName = (rowData[0] !== undefined) ? String(rowData[0]) : "Médicament";
                         
                         headers.forEach((_, index) => { 
                             const td = document.createElement('td');
                             let cellContent = (rowData[index] !== undefined) ? String(rowData[index]) : "";
-                            
                             let currentHeaderName = (headers[index] || "").toString().trim().toUpperCase();
 
-                            // Si le titre de la colonne est "CPR" ET que la case n'est pas vide
                             if (currentHeaderName === "CPR" && cellContent.trim() !== "") {
-                                
                                 const btn = document.createElement('button');
                                 btn.className = 'btn btn-sm btn-info text-white'; 
                                 btn.textContent = 'Voir Détails';
                                 btn.style.borderRadius = '20px';
                                 btn.style.fontSize = '12px';
                                 btn.style.whiteSpace = 'nowrap'; 
-                                
                                 btn.onclick = function() {
-                                    // 1. Mise à jour du contenu
                                     document.getElementById('modal-content-body').innerText = cellContent;
-                                    // 2. Mise à jour du titre avec le nom du médicament récupéré plus haut
-                                    document.getElementById('modal-title').innerText = "CPR - " + drugName + " ...";
-                                    // 3. Affichage
+                                    document.getElementById('modal-title').innerText = drugName + " ...";
                                     myModal.show();
                                 };
-                                
                                 td.appendChild(btn); 
-
                             } else {
                                 td.textContent = cellContent; 
                             }
-
                             tr.appendChild(td);
                         });
                         body.appendChild(tr);
                     }
                 }
 
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('monTableau').style.display = 'table';
+
                 tableInstance = $('#monTableau').DataTable({
-                     // --- MODIFICATION ICI : On écrit la langue en dur pour personnaliser ---
+                    // --- NOUVEAU : ACTIVATION DU SCROLL INTERNE ---
+                    // "55vh" signifie 55% de la hauteur visible de l'écran
+                    scrollY:        "55vh", 
+                    scrollCollapse: true,
+                    scrollX:        true, // Active le scroll horizontal si besoin
+                    // ----------------------------------------------
                     language: {
                         processing:     "Traitement en cours...",
                         search:         "Rechercher&nbsp;:",
-                        lengthMenu:    "Afficher : _MENU_  lignes", // <-- TA DEMANDE
+                        lengthMenu:    "Afficher : _MENU_ lignes",
                         info:           "Affichage de _START_ à _END_ sur _TOTAL_ éléments",
                         infoEmpty:      "Affichage de 0 à 0 sur 0 éléments",
                         infoFiltered:   "(filtré de _MAX_ éléments au total)",
@@ -287,16 +285,13 @@
                             last:       "Dernier"
                         }
                     },
-                    // --------------------------------------------------------------------
-                    /* language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json' },*/
                     pageLength: 20, 
                     lengthMenu: [10, 20, 50, 100], 
                     order: [] 
                 });
 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('monTableau').style.display = 'table';
-                
+                // Cette commande est cruciale quand on active le scrollX/Y 
+                // pour réaligner les titres avec les colonnes
                 tableInstance.columns.adjust().draw();
 
                 setTimeout(function() {
@@ -314,8 +309,3 @@
 
 </body>
 </html>
-
-
-
-
-
